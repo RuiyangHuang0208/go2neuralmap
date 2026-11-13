@@ -1,0 +1,28 @@
+# @package _global_
+#
+# RLNavV3 dual-scale policy:
+# - local 8x8 crop remains the attention key/value source
+# - global NeuralMap is pooled to 12x12 and used to condition the query
+defaults:
+  - rl_nav_training
+  - _self_
+
+training:
+  output_dir: "logs/rl_nav_policy/${run_timestamp}_v3"
+
+rl_nav:
+  observation:
+    crop_size: 8
+    include_global_map: true
+    global_pool_size: 12
+
+ppo:
+  runner:
+    policy_class_name: ActorCriticRLNavV3
+    wandb_run_name: ${run_timestamp}_v3
+  policy:
+    local_crop_size: ${rl_nav.observation.crop_size}
+    global_pool_size: ${rl_nav.observation.global_pool_size}
+    local_crop_encoder_hidden_dims: [256]
+    global_encoder_hidden_dims: [256]
+    query_hidden_dims: [256]

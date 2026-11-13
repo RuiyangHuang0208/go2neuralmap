@@ -1,0 +1,76 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  terrain:
+    # terrains_yaml: resources/terrains/configs/demo_plane_m1_1.yaml
+    # terrains_yaml: resources/terrains/configs/demo_plane_m1.yaml
+    # terrains_yaml: resources/terrains/configs/demo_plane.yaml
+    # terrains_yaml: resources/terrains/configs/hit_wall.yaml
+    # terrains_yaml: resources/terrains/configs/demo_slope_stairs_30_15.yaml
+    terrains_yaml: resources/terrains/configs/demo_slope_2.yaml
+  cost:
+    visualize_collision_contacts: True
+  init_state:
+    # rot: [0., 0., 1., 0.] # -x
+    # rot: [0., 0., 0., 1.] # x
+    # rot: [0., 0., 0.707, 0.707] # y
+    rot: [0., 0., -0.707, 0.707] # y
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode  : False
+      # interactive_mode  : True
+      sampling_interval : 5
+      replot_decimation : 5
+      sub_plotters      : ["foot_print", "cost_map"]
+      # sub_plotters      : ["cost_map"]
+      sub_recorders     : ["latent_recorder", "trajectory_recorder"]
+      log_dir           : ${log_dir}
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25
+  planner:
+    name: "astar"
+    config: 
+      # heuristic: "null"
+      heuristic: "chebyshev_dist"
+      obstacle_threshold: 70.
+      waypoint_stride: 3
+  cost_map:
+    name: "directional_ema_velocity_cost_map"
+    config:
+      init_value: 45
+      least_count: ${modules.neural_map.config.least_count}
+      alpha: 0.1
+      stuck_threshold_steps: 200
+      min_velocity_norm: 0.001
+      min_command_norm: 0.001
+  cost_estimator:
+    name: "estimate_from_critic"
+    config:
+      add_env_cost: True
+      # add_env_cost: False
+
+  # cost_estimator:
+  #   name: "estimate_from_cost_pred_nn"
+  #   config:
+  #     nn_cfg:
+  #      device: ${env.env.device}
+  #      ckpt_path: "/home/liwei/F/002Project/2025W/MasterThesis/go2_neural_map/logs/cost_pred-2026-04-07_11-04-53/model_4500.pt"
+  # vel_command_generator:
+  #   name: position_navigation
+  #   config: 
+  #     map_least_count: ${modules.neural_map.config.least_count}
+  vel_command_generator:
+    name: keyboard_input
+    config:
+      # Press R once to reset robot pose, joints, and episode buffers.
+      # Terrain and neural/cost maps are preserved.
+      enable_robot_reset: true
+      robot_reset_key: r

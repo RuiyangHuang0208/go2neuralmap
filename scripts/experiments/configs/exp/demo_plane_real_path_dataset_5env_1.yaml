@@ -1,0 +1,49 @@
+# @package _global_
+#
+defaults:
+  - demo_plane_real_path_dataset
+  - _self_
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode  : False
+      sampling_interval : 5
+      replot_decimation : 5
+      sub_plotters      : ["foot_print", "cost_map"]
+      sub_recorders     : ["trajectory_recorder"]
+      log_dir           : ${log_dir}
+
+env:
+  env:
+    num_envs: 5
+    randomize_reset_heading: true
+  terrain:
+    # terrains_yaml: resources/terrains/configs/d1.yaml
+    # terrains_yaml: resources/terrains/configs/demo_plane.yaml
+    # terrains_yaml: resources/terrains/configs/d1/d1_block_forest.yaml
+    # terrains_yaml: resources/terrains/configs/d1/d1_simple_maze.yaml
+    # terrains_yaml: resources/terrains/configs/d1/d1_demo_plane_closed.yaml
+    # terrains_yaml: resources/terrains/configs/d1/d1_upstairs.yaml
+    terrains_yaml: resources/terrains/configs/d1/d1_plane.yaml
+    num_rows: 1
+    num_cols: 1
+
+modules:
+  position_controller:
+    name: "position_controller_rotation_first"
+    config: null
+  planner:
+    name: "edge_cost_astar"
+    config:
+      heuristic: "l2_dist"
+      heuristic_min_step_cost: 0.0
+      obstacle_threshold: 70.0
+      waypoint_stride: 50
+  vel_command_generator:
+    config:
+      terrain_reset_after_goal_count: 3
+      terrain_reset_resample_goal: true
+      reset_maps_on_terrain_reset: true
+      resample_goal_flag : True
+      reset_env_flag     : True

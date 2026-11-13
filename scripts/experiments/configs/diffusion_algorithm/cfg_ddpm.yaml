@@ -1,0 +1,21 @@
+# @package algorithm
+name: "cfg_ddpm"
+config:
+  num_diffusion_steps: 100
+  beta_start: 1.0e-4
+  beta_end: 0.02
+  sample_eval_batches: false
+  condition_dropout_prob: 0.1
+  guidance_scale: 2.0
+  model:
+    horizon: 10
+    command_dim: 4
+    timestep_dim: 64
+    hidden_dims: [512, 512, 512]
+    encoder:
+      crop_size: ${training.dataset.crop_size}
+      latent_dim: 64
+      map_channels: 260
+      cnn_channels: [64, 128]
+      vector_hidden_dims: [256, 256]
+      output_dim: 256

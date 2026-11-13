@@ -1,0 +1,41 @@
+# @package _global_
+#
+defaults:
+  - rl_nav_training
+  - _self_
+
+training:
+  output_dir: "logs/rl_nav_policy/${run_timestamp}_cellwise_v3"
+
+modules:
+  neural_map:
+    name: cellwise_bayesian_neural_map
+    config:
+      x_range: [-2.0, 10.0]
+      y_range: [-2.0, 10.0]
+      device: ${env.env.device}
+      short_latent_dim: 32
+      long_latent_dim: 32
+      least_count: 0.25
+      initial_uncertainty: 100000.0
+      incoming_uncertainty: 10.0
+      aging_rate: 0.1
+      max_uncertainty: 100000.0
+
+rl_nav:
+  observation:
+    crop_size: 8
+    include_global_map: true
+    global_pool_size: 12
+
+ppo:
+  runner:
+    policy_class_name: ActorCriticRLNavV3
+    wandb_run_name: ${run_timestamp}_cellwise_v3
+  policy:
+    token_dim: 71
+    local_crop_size: ${rl_nav.observation.crop_size}
+    global_pool_size: ${rl_nav.observation.global_pool_size}
+    local_crop_encoder_hidden_dims: [256]
+    global_encoder_hidden_dims: [256]
+    query_hidden_dims: [256]

@@ -1,0 +1,13 @@
+cost_estimator:
+  name: "estimate_from_env"
+  config: null
+# cost_estimator:
+#   name: "estimate_from_critic"
+#   config:
+#     add_env_cost: False
+# cost_estimator:
+#   name: "estimate_from_cost_pred_nn"
+#   config:
+#     nn_cfg:
+#       device: ${env.env.device}
+#       ckpt_path: "/home/liwei/F/002Project/2025W/MasterThesis/go2_neural_map/logs/cost_pred-2026-04-07_11-04-53/model_4500.pt"

@@ -1,0 +1,96 @@
+# @package _global_
+defaults:
+  - override /diffusion_algorithm: guided_joint_ddpm
+  - _self_
+
+algorithm:
+  name: "guided_joint_ddpm"
+  config:
+    num_diffusion_steps: 16
+    beta_start: 1.0e-4
+    beta_end: 0.02
+    sample_eval_batches: false
+    ema_tau: 0.005
+    sampling_steps: 16
+    candidate_steps: [4, 8, 12, 16]
+    ddpm_candidate_count: 4
+    perturbation_count: 5
+    candidate_sampler:
+      dataset_prob: 0.2
+      perturbation_prob: 0.6
+      ddpm_prob: 0.2
+      candidates_per_sample: 1
+    inference:
+      sampling_steps: 16
+    lambda_risk:
+      start_step: 3000
+      warmup_steps: 30000
+      max_value: 0.1
+    collision_checker:
+      velocity_scale: ${training.dataset.velocity_scale}
+      obstacle_threshold: 70.0
+      robot_radius_cells: 1
+      interpolation_step_cells: 0.5
+    perturbation:
+      velocity_noise_std: 0.15
+      heading_noise_std: 0.25
+      speed_scale_low: 0.5
+      speed_scale_high: 1.4
+      lateral_bias_std: 0.2
+    risk_classifier:
+      condition_dim: 256
+      horizon: 10
+      command_dim: 4
+      hidden_dims: [256, 256]
+    model:
+      horizon: 10
+      command_dim: 4
+      timestep_dim: 64
+      hidden_dims: [512, 512, 512]
+      encoder:
+        crop_size: ${training.dataset.crop_size}
+        latent_dim: 64
+        map_channels: 260
+        cnn_channels: [64, 128]
+        vector_hidden_dims: [256, 256]
+        output_dim: 256
+
+training:
+  seed: 1
+  device: "cuda"
+  epochs: 5000
+  batch_size: 1024
+  num_workers: 0
+  train_split: 0.9
+  log_interval: 20 # Log every x global steps
+  eval_interval: 1 # Eval every x epoch
+  checkpoint_interval: 20 # Save ckpt every x epoch
+  output_dir: "logs/diffusion_policy/${algorithm.name}_${run_timestamp}"
+  dataset:
+    dataset_dir: "logs/data_augmentation/dataset_3"
+    # dataset_dir: "logs/2026-04-28_39dd44e/demo_plane_7_23-37-21/subset"
+    # dataset_dir: "go2_smoke"
+    max_samples: null
+    crop_size: 8
+    goal_scale: 12.0
+    velocity_scale: 1.5
+    uncertainty_log_scale: 12.0
+    uncertainty_max: 100000.0
+    shard_cache_size: 1
+    require_cost_map: true
+  optimizer:
+    lr: 1.0e-4
+    weight_decay: 1.0e-6
+  wandb:
+    enabled: true
+    project: "go2_neural_map"
+    entity: null
+    name: null
+    mode: null
+  resume:
+    enabled: false
+    checkpoint_path: null
+    strict: true
+    load_optimizer: true
+
+run_timestamp: ???

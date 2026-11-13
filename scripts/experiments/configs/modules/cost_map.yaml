@@ -1,0 +1,10 @@
+cost_map:
+  name: "ema_cost_map"
+  num_envs: ${env.env.num_envs}
+  config:
+    x_range    : [-2.0, 10.0]
+    y_range    : [-2.0, 10.0]
+    device     : ${env.env.device}
+    least_count: 0.5
+    init_value : 45.
+    alpha      : 0.1

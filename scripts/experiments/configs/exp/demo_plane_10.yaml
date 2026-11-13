@@ -1,0 +1,28 @@
+# @package _global_
+#
+# Point-to-point controller baseline for demo_plane_9 evaluation settings.
+# Uses position_controller directly without map-assisted planning.
+defaults:
+  - demo_plane_9
+  - _self_
+
+modules:
+  vel_command_generator:
+    name: point_to_point_navigation
+    config: ${modules.vel_command_generator.point_to_point_config}
+    point_to_point_config:
+      goal_source: list
+      goal_list_start_index: 0
+      goal_xy_list:
+        - [1.0, 4.0]
+        - [7.0, 4.0]
+      goal_tolerance: 0.35
+      reset_env_flag: false
+      timeout_limit_s: 30.0
+      timeout_limit_steps: null
+      # timeout_action: task_reset
+      timeout_action: env_reset
+      advance_goal_on_success: true
+      # advance_goal_on_timeout: true
+      advance_goal_on_timeout: false
+      advance_goal_on_done: true

@@ -1,0 +1,59 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  terrain:
+    # terrains_yaml: resources/terrains/configs/demo_plane_m1_1.yaml
+    # terrains_yaml: resources/terrains/configs/demo_plane_m1.yaml
+    # terrains_yaml: resources/terrains/configs/demo_plane.yaml
+    terrains_yaml: resources/terrains/configs/hit_wall.yaml
+  cost:
+    visualize_collision_contacts: True
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode  : False
+      # interactive_mode  : True
+      sampling_interval : 5
+      replot_decimation : 5
+      # sub_plotters      : ["foot_print", "cost_map"]
+      sub_plotters      : []
+      sub_recorders     : ["latent_recorder"]
+      log_dir           : ${log_dir}
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25
+  planner:
+    name: "astar"
+    config: 
+      # heuristic: "null"
+      heuristic: "chebyshev_dist"
+      obstacle_threshold: 70.
+      waypoint_stride: 3
+  cost_map:
+    config:
+      least_count: ${modules.neural_map.config.least_count}
+  cost_estimator:
+    name: "estimate_from_critic"
+    config:
+      add_env_cost: True
+      # add_env_cost: False
+
+  # cost_estimator:
+  #   name: "estimate_from_cost_pred_nn"
+  #   config:
+  #     nn_cfg:
+  #      device: ${env.env.device}
+  #      ckpt_path: "/home/liwei/F/002Project/2025W/MasterThesis/go2_neural_map/logs/cost_pred-2026-04-07_11-04-53/model_4500.pt"
+  # vel_command_generator:
+  #   name: position_navigation
+  #   config: 
+  #     map_least_count: ${modules.neural_map.config.least_count}
+  vel_command_generator:
+    name: keyboard_input
+    config: null

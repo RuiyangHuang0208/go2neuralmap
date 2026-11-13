@@ -1,0 +1,63 @@
+# IDE configuration files
+.nvim
+.vscode
+.codex
+
+isaacgym/
+
+# Python / virtualenv
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+.Python
+pip-wheel-metadata/
+dist/
+build/
+*.egg
+.venv/
+venv/
+ENV/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs and artifacts
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.out
+
+# OS and misc
+.DS_Store
+Thumbs.db
+
+# data
+*.npy
+*.pkl
+*.csv
+legged_gym/legged_gym/scripts/data/*.pkl
+
+# wandb
+wandb/
+
+# videos
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+# ai config
+.reference/
+temp/
+logs/
+notebooks/
+playground/
+resources/
+utils/classifier/run_data

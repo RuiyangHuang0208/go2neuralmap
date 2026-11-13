@@ -1,0 +1,15 @@
+defaults:
+  - helpers: [logger, state_recorder, dataset_collector]
+  - /envs/go2nm_demo
+  - modules: 
+    - neural_map
+    - cost_map
+    - locomotion_model
+    - cost_estimator
+    - position_controller
+    - planner
+    - vel_command_generator
+  - _self_
+
+task: go2nm
+log_dir: "logs/${curr_log_dir_name}"

@@ -1,0 +1,18 @@
+state_recorder:
+  name: state_recorder
+  config:
+    interactive_mode  : True
+    sampling_interval : 5
+    replot_decimation : 5
+    sub_plotters      : ["foot_print", "cost_map"]
+    sub_recorders     : ["trajectory_recorder"]
+    # To enable periodic directional-uncertainty snapshots in a specific
+    # experiment, add "uncertainty_footprint_recorder" above and configure:
+    # sub_recorder_configs:
+    #   uncertainty_footprint_recorder:
+    #     snapshot_interval_seconds: 60.0
+    log_dir           : ${log_dir}
+
+# state_recorder:
+#   name: null_recorder
+#   config: null

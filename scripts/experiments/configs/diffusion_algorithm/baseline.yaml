@@ -1,0 +1,15 @@
+# @package algorithm
+name: "baseline"
+config:
+  sin_cos_unit_loss_weight: 0.01
+  model:
+    horizon: 10
+    command_dim: 4
+    head_hidden_dims: [256, 256]
+    encoder:
+      crop_size: ${training.dataset.crop_size}
+      latent_dim: 64
+      map_channels: 260
+      cnn_channels: [64, 128]
+      vector_hidden_dims: [256, 256]
+      output_dim: 256

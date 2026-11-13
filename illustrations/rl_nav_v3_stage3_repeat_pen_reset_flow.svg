@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">RLNavV3 stage3_v3_repeat_pen task terrain reset flow</title>
+  <desc id="desc">Flowchart for task, terrain id, start goal, environment reset and sampling logic controlled by stage3_v3_repeat_pen.yaml.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#263238"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .title { font: 700 30px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .subtitle { font: 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #52606d; }
+      .section { fill: #ffffff; stroke: #c9d4df; stroke-width: 1.5; rx: 10; }
+      .section-title { font: 700 18px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .box { fill: #ffffff; stroke: #7b8b9a; stroke-width: 1.5; rx: 8; }
+      .blue { fill: #e8f2ff; stroke: #3b78c8; }
+      .green { fill: #e9f7ef; stroke: #31945b; }
+      .orange { fill: #fff1dd; stroke: #d9822b; }
+      .red { fill: #ffe8e8; stroke: #c94f4f; }
+      .teal { fill: #e5f7f6; stroke: #238b86; }
+      .gray { fill: #eef2f5; stroke: #7b8b9a; }
+      .purple { fill: #f0ebff; stroke: #7c5cc4; }
+      .label { font: 700 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .text { font: 13px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .small { font: 12px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #44515d; }
+      .mono { font: 12.5px "JetBrains Mono", Consolas, monospace; fill: #263238; }
+      .arrow { stroke: #263238; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .soft { stroke: #607d8b; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 7 5; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="1120"/>
+  <text x="800" y="46" text-anchor="middle" class="title">RLNavV3 stage3_v3_repeat_pen: task / terrain / reset 采样流程</text>
+  <text x="800" y="73" text-anchor="middle" class="subtitle">配置入口: scripts/experiments/configs/rl_nav_training_v3.yaml + exp/training/rl_nav/stage3_v3_repeat_pen.yaml</text>
+
+  <rect x="42" y="115" width="328" height="830" class="section"/>
+  <text x="66" y="146" class="section-title">配置来源</text>
+
+  <rect x="70" y="178" width="272" height="104" class="box blue"/>
+  <text x="206" y="204" text-anchor="middle" class="label">训练任务</text>
+  <text x="206" y="228" text-anchor="middle" class="mono">task: go2nm</text>
+  <text x="206" y="247" text-anchor="middle" class="small">base rl_nav_training.yaml</text>
+  <text x="206" y="266" text-anchor="middle" class="small">task_registry 创建 GO2NM/GO2Rough env</text>
+
+  <rect x="70" y="314" width="272" height="122" class="box teal"/>
+  <text x="206" y="340" text-anchor="middle" class="label">terrain loader</text>
+  <text x="206" y="364" text-anchor="middle" class="mono">env.terrain.num_rows: 3</text>
+  <text x="206" y="383" text-anchor="middle" class="mono">env.terrain.num_cols: 3</text>
+  <text x="206" y="402" text-anchor="middle" class="mono">terrains_yaml: rl_nav/stage2.yaml</text>
+  <text x="206" y="421" text-anchor="middle" class="small">9 个 terrain_id slots</text>
+
+  <rect x="70" y="468" width="272" height="138" class="box green"/>
+  <text x="206" y="494" text-anchor="middle" class="label">task / goal 控制</text>
+  <text x="206" y="518" text-anchor="middle" class="mono">goal_sampling.max_distance: 8.0</text>
+  <text x="206" y="537" text-anchor="middle" class="mono">max_attempts: 20</text>
+  <text x="206" y="556" text-anchor="middle" class="mono">fallback: accept_last</text>
+  <text x="206" y="575" text-anchor="middle" class="small">min_distance=0, start 来自 terrain starts</text>
+  <text x="206" y="594" text-anchor="middle" class="small">goal 来自 terrain goals + 距离过滤</text>
+
+  <rect x="70" y="638" width="272" height="150" class="box orange"/>
+  <text x="206" y="664" text-anchor="middle" class="label">reset 策略</text>
+  <text x="206" y="688" text-anchor="middle" class="mono">map_reset_success_threshold: 10</text>
+  <text x="206" y="707" text-anchor="middle" class="mono">resample_task_on_timeout: true</text>
+  <text x="206" y="726" text-anchor="middle" class="mono">resample_task_on_collision_done: true</text>
+  <text x="206" y="745" text-anchor="middle" class="mono">terminate_on_map_out_of_bounds: true</text>
+  <text x="206" y="764" text-anchor="middle" class="small">collision_done_threshold=null</text>
+
+  <rect x="70" y="820" width="272" height="92" class="box red"/>
+  <text x="206" y="846" text-anchor="middle" class="label">terrain 是否重采样</text>
+  <text x="206" y="870" text-anchor="middle" class="mono">on_map_reset: true</text>
+  <text x="206" y="889" text-anchor="middle" class="mono">on_task_success/timeout/collision: false</text>
+
+  <rect x="418" y="115" width="510" height="830" class="section"/>
+  <text x="442" y="146" class="section-title">初始化与采样</text>
+
+  <rect x="460" y="178" width="422" height="92" class="box blue"/>
+  <text x="671" y="204" text-anchor="middle" class="label">train_rl_nav_policy.main()</text>
+  <text x="671" y="228" text-anchor="middle" class="mono">task_registry.make_env(task=go2nm)</text>
+  <text x="671" y="247" text-anchor="middle" class="small">merge_env_config 后使用 stage 覆盖的 env 配置</text>
+
+  <rect x="460" y="310" width="422" height="118" class="box teal"/>
+  <text x="671" y="336" text-anchor="middle" class="label">TerrainLoader(cfg.terrain)</text>
+  <text x="671" y="360" text-anchor="middle" class="small">读取 resources/terrains/configs/rl_nav/stage2.yaml</text>
+  <text x="671" y="379" text-anchor="middle" class="small">按 difficulty 分组轮换抽取 num_rows*num_cols 个 specs</text>
+  <text x="671" y="398" text-anchor="middle" class="small">构造 terrain_id = 0..8, row/col/offset/start/goal</text>
+  <text x="671" y="417" text-anchor="middle" class="small">terrain id 是 loader 实例 id，不是 YAML 显式字段</text>
+
+  <rect x="460" y="468" width="422" height="92" class="box purple"/>
+  <text x="671" y="494" text-anchor="middle" class="label">GO2 env 初始化</text>
+  <text x="671" y="518" text-anchor="middle" class="mono">_assign_terrain_to_env()</text>
+  <text x="671" y="537" text-anchor="middle" class="small">每个 env 从 0..8 均匀随机选 terrain_id</text>
+
+  <rect x="460" y="600" width="422" height="116" class="box green"/>
+  <text x="671" y="626" text-anchor="middle" class="label">底层 reset()</text>
+  <text x="671" y="650" text-anchor="middle" class="mono">reset_idx(all envs)</text>
+  <text x="671" y="669" text-anchor="middle" class="small">curriculum=false: 不重采样 terrain_id</text>
+  <text x="671" y="688" text-anchor="middle" class="small">sample_starts(env_terrain_map), 设置 env_origins</text>
+  <text x="671" y="707" text-anchor="middle" class="small">root_state = base_init_state + origin + xy jitter</text>
+
+  <rect x="460" y="756" width="422" height="116" class="box orange"/>
+  <text x="671" y="782" text-anchor="middle" class="label">RLNavPolicyEnv 初始化</text>
+  <text x="671" y="806" text-anchor="middle" class="mono">store_current_start(root_local_pos)</text>
+  <text x="671" y="825" text-anchor="middle" class="mono">sample_goals(all envs)</text>
+  <text x="671" y="844" text-anchor="middle" class="small">goal 从当前 terrain_id 的 goals 采样</text>
+  <text x="671" y="863" text-anchor="middle" class="small">max_distance=8.0 触发距离过滤，accept_last 兜底</text>
+
+  <path d="M342 230 L460 224" class="arrow"/>
+  <path d="M342 375 L460 369" class="arrow"/>
+  <path d="M671 270 L671 310" class="arrow"/>
+  <path d="M671 428 L671 468" class="arrow"/>
+  <path d="M671 560 L671 600" class="arrow"/>
+  <path d="M671 716 L671 756" class="arrow"/>
+
+  <rect x="976" y="115" width="582" height="830" class="section"/>
+  <text x="1000" y="146" class="section-title">step() 后的 done/reset 分支</text>
+
+  <rect x="1024" y="178" width="486" height="94" class="box blue"/>
+  <text x="1267" y="204" text-anchor="middle" class="label">高层 action -> 低层 velocity command</text>
+  <text x="1267" y="228" text-anchor="middle" class="mono">steps_per_command = round(0.25 * 50.0) = 12</text>
+  <text x="1267" y="247" text-anchor="middle" class="small">每个低层 step 更新 NeuralMap；底层 done/OOB 时临时回到 task_start</text>
+
+  <rect x="1024" y="314" width="486" height="112" class="box orange"/>
+  <text x="1267" y="340" text-anchor="middle" class="label">done 条件</text>
+  <text x="1267" y="364" text-anchor="middle" class="mono">reached_goal: distance &lt;= 0.35</text>
+  <text x="1267" y="383" text-anchor="middle" class="mono">timeout: high-level steps &gt;= 160</text>
+  <text x="1267" y="402" text-anchor="middle" class="mono">low_level_done | map_out_of_bounds</text>
+  <text x="1267" y="421" text-anchor="middle" class="small">collision_done 实际关闭，因为 threshold=null</text>
+
+  <rect x="1024" y="468" width="224" height="132" class="box green"/>
+  <text x="1136" y="494" text-anchor="middle" class="label">到达 goal</text>
+  <text x="1136" y="518" text-anchor="middle" class="mono">success_count += 1</text>
+  <text x="1136" y="537" text-anchor="middle" class="small">若 &lt; 10 次:</text>
+  <text x="1136" y="556" text-anchor="middle" class="mono">task_reset(clear_map=false)</text>
+  <text x="1136" y="575" text-anchor="middle" class="small">不换 terrain, 重采 start/goal</text>
+
+  <rect x="1286" y="468" width="224" height="132" class="box red"/>
+  <text x="1398" y="494" text-anchor="middle" class="label">第 10 次成功</text>
+  <text x="1398" y="518" text-anchor="middle" class="mono">_reset_map_episode()</text>
+  <text x="1398" y="537" text-anchor="middle" class="mono">clear_map=true</text>
+  <text x="1398" y="556" text-anchor="middle" class="mono">terrain_reset()</text>
+  <text x="1398" y="575" text-anchor="middle" class="small">on_map_reset=true: 重采 terrain_id</text>
+
+  <rect x="1024" y="642" width="224" height="116" class="box orange"/>
+  <text x="1136" y="668" text-anchor="middle" class="label">timeout</text>
+  <text x="1136" y="692" text-anchor="middle" class="mono">resample_task_on_timeout=true</text>
+  <text x="1136" y="711" text-anchor="middle" class="mono">task_reset(clear_map=false)</text>
+  <text x="1136" y="730" text-anchor="middle" class="small">on_timeout=false: terrain_id 不变</text>
+
+  <rect x="1286" y="642" width="224" height="116" class="box purple"/>
+  <text x="1398" y="668" text-anchor="middle" class="label">low-level done / OOB</text>
+  <text x="1398" y="692" text-anchor="middle" class="mono">robot_reset(task_start)</text>
+  <text x="1398" y="711" text-anchor="middle" class="small">OOB 会作为 terminated 计入</text>
+  <text x="1398" y="730" text-anchor="middle" class="small">只回同一 start，不采 task</text>
+
+  <rect x="1024" y="800" width="486" height="92" class="box gray"/>
+  <text x="1267" y="826" text-anchor="middle" class="label">每次 task/map reset 后</text>
+  <text x="1267" y="850" text-anchor="middle" class="mono">episode_length=0, collision_count=0, command=0</text>
+  <text x="1267" y="869" text-anchor="middle" class="small">clear_map 时 NeuralMap 和 repeated_collision_map 清零；再刷新 observation</text>
+
+  <path d="M882 814 C936 814 947 225 1024 225" class="arrow"/>
+  <path d="M1267 272 L1267 314" class="arrow"/>
+  <path d="M1267 426 C1190 440 1150 444 1136 468" class="arrow"/>
+  <path d="M1267 426 C1344 440 1384 444 1398 468" class="arrow"/>
+  <path d="M1267 426 C1178 500 1148 572 1136 642" class="arrow"/>
+  <path d="M1267 426 C1356 500 1386 572 1398 642" class="arrow"/>
+  <path d="M1136 600 C1136 662 1198 756 1267 800" class="soft"/>
+  <path d="M1398 600 C1398 662 1336 756 1267 800" class="soft"/>
+  <path d="M1136 758 C1136 786 1190 800 1267 800" class="soft"/>
+  <path d="M1398 758 C1398 786 1344 800 1267 800" class="soft"/>
+
+  <rect x="168" y="984" width="1264" height="82" class="box gray"/>
+  <text x="800" y="1012" text-anchor="middle" class="label">stage3_v3_repeat_pen 的实际行为</text>
+  <text x="800" y="1036" text-anchor="middle" class="text">短任务失败/超时通常只换 start+goal；连续成功达到 10 次才清 NeuralMap，并且因为 terrain_resampling.on_map_reset=true 同时重采 terrain_id。</text>
+  <text x="800" y="1058" text-anchor="middle" class="text">goal/start 都是 terrain-local YAML 点；写入 env 后转换为对应 terrain slot 的 world origin，RLNav observation 使用 root_local_pos 和 goal_xy。</text>
+</svg>

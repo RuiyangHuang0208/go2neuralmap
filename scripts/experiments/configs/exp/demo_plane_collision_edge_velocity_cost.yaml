@@ -1,0 +1,68 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_plane_1.yaml
+  cost:
+    visualize_collision_contacts: True
+
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode  : False
+      sampling_interval : 5
+      replot_decimation : 5
+      sub_plotters      : ["foot_print", "cost_map"]
+      sub_recorders     : ["trajectory_recorder"]
+      log_dir           : ${log_dir}
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25
+  planner:
+    name: "edge_cost_astar"
+    config:
+      heuristic: "l2_dist"
+      heuristic_min_step_cost: 0.0
+      obstacle_threshold: 70.
+      waypoint_stride: 5
+  cost_map:
+    name: "collision_directional_ema_velocity_cost_map"
+    config:
+      init_value: 45
+      least_count: ${modules.neural_map.config.least_count}
+      alpha: 0.1
+      stuck_threshold_steps: 200
+      min_velocity_norm: 0.001
+      min_command_norm: 0.001
+      impassable_cost: 1000000.0
+  cost_estimator:
+    name: "estimate_from_critic"
+    config:
+      add_env_cost: True
+  # vel_command_generator:
+  #   name: position_navigation
+  #   config:
+  #     map_least_count: ${modules.neural_map.config.least_count}
+  #     replan_interval: 50
+  vel_command_generator:
+    name: position_navigation
+    config:
+      map_least_count: ${modules.neural_map.config.least_count}
+      replan_interval: 50
+      planning_failure_callback: backward_keep_heading_bypass_refiner
+      planning_failure_backward_velocity: 0.6
+      planning_failure_replan_interval: 20
+  position_controller:
+    name: "position_controller_bezier"
+    config:
+      derivative_eval_u: 0.0
+      tangent_scale: 0.1666666667
+      min_tangent_norm: 0.001
+      max_speed: 1.5
+      max_lateral_speed: 0.5

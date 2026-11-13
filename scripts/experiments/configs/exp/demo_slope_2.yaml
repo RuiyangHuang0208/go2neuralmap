@@ -1,0 +1,8 @@
+# @package _global_
+defaults:
+  - /exp/go2nm
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_slope_stairs_30_15.yaml

@@ -1,0 +1,103 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  env:
+    num_envs: 468
+    device: cuda
+  commands:
+    heading_command: false
+    resampling_time: 1000000000.0
+  cost:
+    visualize_collision_contacts: false
+  terrain:
+    num_rows: 1
+    num_cols: 1
+    terrains_yaml: resources/terrains/configs/rl_nav/d1_plane.yaml
+
+training:
+  seed: 0
+  device: cuda
+  max_iterations: 3000
+  output_dir: "logs/rl_nav_policy/${run_timestamp}_stage0"
+
+modules:
+  neural_map:
+    name: directional_bayesian_neural_map
+    num_envs: ${env.env.num_envs}
+    config:
+      x_range: [-2.0, 10.0]
+      y_range: [-2.0, 10.0]
+      device: ${env.env.device}
+      short_latent_dim: 32
+      long_latent_dim: 32
+      least_count: 0.25
+      initial_uncertainty: 100000.0
+      incoming_uncertainty: 10.0
+      aging_rate: 0.1
+      max_uncertainty: 100000.0
+
+rl_nav:
+  # command_dt: 0.5
+  command_dt: 0.25
+  main_loop_hz: 50.0
+  max_episode_steps: 80
+  collision_done_threshold: null
+  map_reset_success_threshold: 5
+  resample_task_on_timeout: true
+  resample_task_on_collision_done: true
+  disable_low_level_command_resampling: true
+  terminate_on_map_out_of_bounds: true
+  profiling_enabled: false
+  goal_sampling:
+    min_distance: 0.0
+    max_distance: 2.0
+    max_attempts: 20
+    fallback: accept_last
+
+  terrain_resampling:
+    on_task_success: false
+    on_map_reset: false
+    on_timeout: false
+    on_collision_done: false
+
+  observation:
+    crop_size: 8
+    goal_scale: 12.0
+    velocity_scale: 1.5
+    yaw_rate_scale: 1.0
+    uncertainty_log_scale: 12.0
+    uncertainty_max: 100000.0
+    clipped_goal_distance: 1.0
+    include_previous_command: true
+
+  reward:
+    variant: shaped
+    goal_tolerance: 0.35
+    reached_goal_reward: 10.0
+    collision_penalty: 2.0
+    termination_penalty: 10.0
+    progress_scale: 2.0
+    progress_positive_only: true
+    time_penalty: 0.01
+    command_penalty_scale: 0.01
+    command_smoothness_penalty_scale: 0.02
+    collision_uncertainty_scale:
+      enabled: false
+      scope: crop_mean
+      min_scale: 0.75
+      max_scale: 1.5
+
+ppo:
+  runner:
+    logger: wandb
+    wandb_project: go2_neural_map_rl_nav
+    wandb_run_name: ${run_timestamp}_stage0
+    wandb_entity: null
+    wandb_mode: null
+    policy_class_name: ActorCriticRLNavV2
+    policy:
+      crop_encoder_hidden_dims: [256]
+      query_hidden_dims: [256]

@@ -1,0 +1,1 @@
+from .cost_predict_nn_sigle_latent import CostPredNNSingleLatent, Config, CostPredNNSingleLatentBuilder

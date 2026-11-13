@@ -1,0 +1,79 @@
+# @package _global_
+
+defaults:
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/d1/d1_demo_plane_closed.yaml
+  cost:
+    visualize_collision_contacts: True
+  init_state:
+    rot: [0., 0., 1., 0.]
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode  : False
+      sampling_interval : 5
+      replot_decimation : 5
+      sub_plotters      : ["foot_print", "cost_map"]
+      sub_recorders     : ["trajectory_recorder"]
+      log_dir           : ${log_dir}
+  dataset_collector:
+    enabled: false
+
+modules:
+  neural_map:
+    name: "directional_bayesian_neural_map"
+    config:
+      x_range              : [-2.0, 10.0]
+      y_range              : [-2.0, 10.0]
+      least_count          : 0.25
+      initial_uncertainty  : 100000.0
+      incoming_uncertainty : 10.0
+      aging_rate           : 0.1
+      max_uncertainty      : 100000.0
+      min_velocity_norm    : 0.001
+      min_channel_weight   : 0.000001
+
+  cost_map:
+    name: "collision_directional_ema_velocity_cost_map"
+    config:
+      init_value: 45
+      least_count: ${modules.neural_map.config.least_count}
+      alpha: 0.1
+      stuck_threshold_steps: 200
+      min_velocity_norm: 0.001
+      min_command_norm: 0.001
+      impassable_cost: 1000000.0
+
+  cost_estimator:
+    name: "estimate_from_critic"
+    config:
+      add_env_cost: True
+
+  vel_command_generator:
+    name: residual_diffusion_policy
+    config:
+      # diffusion_run_dir: "logs/diffusion_policy/cfg_ddpm_2026-05-11_22-27-03"
+      diffusion_run_dir: "logs/diffusion_policy/cfg_ddpm_2026-05-15_08-48-25"
+      diffusion_checkpoint: "${.diffusion_run_dir}/latest.pt"
+      diffusion_config: "${.diffusion_run_dir}/config.yaml"
+      # residual_run_dir: "logs/residual_policy/2026-05-12_09-56-44"
+      # residual_run_dir: "logs/residual_policy/2026-05-12_23-02-25"
+      residual_run_dir: "logs/residual_policy/2026-05-15_20-38-39"
+      residual_checkpoint: null
+      residual_config: "${.residual_run_dir}/config.yaml"
+      device: ${env.env.device}
+      execution_horizon: 2
+      command_dt: 0.5
+      main_loop_hz: 50.0
+      goal_tolerance: 0.35
+      resample_goal_flag: False
+      reset_env_flag: True
+      goal_source: "sampled"
+      residual_vxy_scale: 0.3
+      residual_heading_scale: 0.4
+      max_forward_speed: 1.5
+      max_lateral_speed: 0.5

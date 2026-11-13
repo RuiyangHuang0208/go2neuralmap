@@ -1,0 +1,21 @@
+# @package _global_
+
+env:
+  seed: -1 # random
+  env:
+    num_envs: 1
+    device: cuda
+    randomize_reset_heading: false
+  terrain:
+    curriculum: False
+    num_rows: 1
+    num_cols: 1
+    terrains_yaml: resources/terrains/configs/plane.yaml
+  cost:
+    scales:
+      power: 0.0
+      collision: 0.7
+
+  init_state:
+    rot: [0., 0., 1., 0.]
+  

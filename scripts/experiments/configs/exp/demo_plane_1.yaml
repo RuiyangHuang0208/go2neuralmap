@@ -1,0 +1,31 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_plane.yaml
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode: False
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25
+  cost_map:
+    config:
+      least_count: ${modules.neural_map.config.least_count}
+
+  cost_estimator:
+    name: "estimate_from_critic"
+    config:
+      add_env_cost: True
+
+  vel_command_generator:
+    name: position_navigation
+    config: 
+      map_least_count: ${modules.neural_map.config.least_count}

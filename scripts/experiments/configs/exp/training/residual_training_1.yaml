@@ -1,0 +1,92 @@
+# @package _global_
+
+training:
+  seed: 0
+  device: cuda
+  max_iterations: 1000
+  output_dir: "logs/residual_policy/${run_timestamp}"
+
+env:
+  env:
+    num_envs: 16
+    device: cuda
+  cost:
+    visualize_collision_contacts: false
+
+  terrain:
+    num_rows: 4
+    num_cols: 4
+    # terrains_yaml: resources/terrains/configs/demo_plane_closed_1.yaml
+    # terrains_yaml: resources/terrains/configs/plane.yaml
+    terrains_yaml: resources/terrains/configs/d1.yaml
+
+modules:
+  neural_map:
+    name: directional_bayesian_neural_map
+    num_envs: ${env.env.num_envs}
+    config:
+      x_range: [-2.0, 10.0]
+      y_range: [-2.0, 10.0]
+      device: ${env.env.device}
+      short_latent_dim: 32
+      long_latent_dim: 32
+      least_count: 0.5
+      initial_uncertainty: 100000.0
+      incoming_uncertainty: 10.0
+      aging_rate: 0.1
+      max_uncertainty: 100000.0
+
+diffusion:
+  # run_dir: "logs/diffusion_policy/cfg_ddpm_2026-05-11_22-27-03"
+  # run_dir: "logs/diffusion_policy/cfg_ddpm_2026-05-14_15-58-34"
+  run_dir: "logs/diffusion_policy/cfg_ddpm_2026-05-15_08-48-25"
+  checkpoint: null
+  config: null
+  device: ${training.device}
+
+residual:
+  command_dt: 0.5
+  main_loop_hz: 50.0
+  max_episode_steps: 20
+  collision_done_threshold: null
+  observation:
+    clipped_goal_distance: 1.0
+  command_mixer:
+    residual_horizon: 2
+    residual_vxy_scale: 0.3
+    residual_heading_scale: 0.4
+    max_forward_speed: 1.5
+    max_lateral_speed: 0.5
+  reward:
+    variant: sparse
+    goal_tolerance: 0.35
+    reached_goal_reward: 10.0
+    collision_penalty: 5.0
+    termination_penalty: 10.0
+    residual_penalty_scale: 0.1
+    progress_scale: 1.0
+
+ppo:
+  runner:
+    policy_class_name: ActorCritic
+    algorithm_class_name: PPO
+    num_steps_per_env: 24
+    save_interval: 100
+  policy:
+    actor_hidden_dims: [512, 512, 256]
+    critic_hidden_dims: [512, 512, 256]
+    activation: elu
+    init_noise_std: 1.0
+  algorithm:
+    value_loss_coef: 1.0
+    use_clipped_value_loss: true
+    clip_param: 0.2
+    entropy_coef: 0.01
+    num_learning_epochs: 5
+    num_mini_batches: 4
+    learning_rate: 1.0e-3
+    schedule: adaptive
+    gamma: 0.99
+    lam: 0.95
+    desired_kl: 0.01
+    max_grad_norm: 1.0

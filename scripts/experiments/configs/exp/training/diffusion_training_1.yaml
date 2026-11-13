@@ -1,0 +1,47 @@
+# @package _global_
+defaults:
+  - override /diffusion_algorithm: ddpm
+  - _self_
+
+diffusion_algorithm:
+  config:
+    num_diffusion_steps: 16
+
+training:
+  seed: 1
+  device: "cuda"
+  epochs: 5000
+  batch_size: 1024
+  num_workers: 0
+  train_split: 0.9
+  log_interval: 20 # Log every x global steps
+  eval_interval: 1 # Eval every x epoch
+  checkpoint_interval: 20 # Save ckpt every x epoch
+  output_dir: "logs/diffusion_policy/${algorithm.name}_${run_timestamp}"
+  dataset:
+    dataset_dir: "logs/data_augmentation/dataset"
+    # dataset_dir: "logs/2026-04-28_39dd44e/demo_plane_7_23-37-21/subset"
+    # dataset_dir: "go2_smoke"
+    max_samples: null
+    crop_size: 8
+    goal_scale: 12.0
+    velocity_scale: 1.5
+    uncertainty_log_scale: 12.0
+    uncertainty_max: 100000.0
+    shard_cache_size: 1
+  optimizer:
+    lr: 1.0e-4
+    weight_decay: 1.0e-6
+  wandb:
+    enabled: true
+    project: "go2_neural_map"
+    entity: null
+    name: null
+    mode: null
+  resume:
+    enabled: false
+    checkpoint_path: null
+    strict: true
+    load_optimizer: true
+
+run_timestamp: ???

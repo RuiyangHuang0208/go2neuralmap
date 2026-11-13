@@ -1,0 +1,32 @@
+# @package _global_
+#
+defaults:
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_plane.yaml
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode: False
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25
+  cost_map:
+    config:
+      least_count: ${modules.neural_map.config.least_count}
+
+  cost_estimator:
+    name: "estimate_from_cost_pred_nn"
+    config:
+      nn_cfg:
+       device: ${env.env.device}
+       ckpt_path: "/home/liwei/F/002Project/2025W/MasterThesis/go2_neural_map/logs/cost_pred-2026-04-07_11-04-53/model_4500.pt"
+  vel_command_generator:
+    name: position_navigation
+    config: 
+      map_least_count: ${modules.neural_map.config.least_count}

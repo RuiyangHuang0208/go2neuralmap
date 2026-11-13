@@ -1,0 +1,114 @@
+# @package _global_
+#
+# description:
+# Mainly focus on refinement
+defaults:
+  - _self_
+
+env:
+  env:
+    num_envs: 512
+    device: cuda
+  commands:
+    heading_command: false
+    resampling_time: 1000000000.0
+  cost:
+    visualize_collision_contacts: false
+  terrain:
+    num_rows: 12
+    num_cols: 10
+    # terrains_yaml: resources/terrains/configs/rl_nav/nm_enhancement.yaml
+    terrains_yaml: resources/terrains/configs/rl_nav/stage3.yaml
+
+training:
+  seed: 0
+  device: cuda
+  max_iterations: 3000
+  output_dir: "logs/rl_nav_policy/${run_timestamp}_v3_stage3_nm_enhancement"
+
+rl_nav:
+  observation:
+    crop_size: 8
+    include_global_map: true
+    global_pool_size: 12
+  # command_dt: 0.5
+  command_dt: 0.25
+  main_loop_hz: 50.0
+  max_episode_steps: 160
+  collision_done_threshold: null
+  map_reset_success_threshold: 20
+  resample_task_on_timeout: true
+  resample_task_on_collision_done: true
+  disable_low_level_command_resampling: true
+  terminate_on_map_out_of_bounds: true
+  profiling_enabled: false
+  goal_sampling:
+    avoid_previous: true
+    previous_tolerance: 0.001
+    min_distance: 0.0
+    max_distance: 8.
+    max_attempts: 20
+    fallback: accept_last
+  terrain_resampling:
+    on_task_success: false
+    on_map_reset: true
+    on_timeout: false
+    on_collision_done: false
+  reward:
+    variant: shaped
+    goal_tolerance: 0.35
+    reached_goal_reward: 10.0
+    collision_penalty: 2.0
+    termination_penalty: 10.0
+    progress_scale: 2.0
+    progress_positive_only: true
+    time_penalty: 0.01
+    command_penalty_scale: 0.01
+    command_smoothness_penalty_scale: 0.02
+    collision_uncertainty_scale:
+      enabled: true
+      scope: crop_mean
+      min_scale: 0.75
+      max_scale: 3.
+    repeated_collision_penalty:
+        enabled: true
+        penalty_scale: 2.5
+        radius_cells: 1
+        max_count: 3.0
+        decay: 1.0
+    middle_point_reward: 3.0
+    middle_point_tolerance: 0.35
+
+ppo:
+  runner:
+    logger: wandb
+    wandb_project: go2_neural_map_rl_nav
+    wandb_run_name: ${run_timestamp}_v3_stage3
+    wandb_entity: null
+    wandb_mode: null
+    policy_class_name: ActorCriticRLNavV3
+  policy:
+    local_crop_size: ${rl_nav.observation.crop_size}
+    global_pool_size: ${rl_nav.observation.global_pool_size}
+    local_crop_encoder_hidden_dims: [256]
+    global_encoder_hidden_dims: [256]
+    query_hidden_dims: [256]
+
+  algorithm:
+    value_loss_coef: 1.0
+    use_clipped_value_loss: true
+    clip_param: 0.2
+    entropy_coef: 0.01
+    entropy_coef_schedule: linear
+    entropy_coef_final: 0.001
+    entropy_coef_schedule_steps: 1000
+    num_learning_epochs: 1
+    num_mini_batches: 1
+    learning_rate: 1.0e-3
+    schedule: adaptive
+    gamma: 0.99
+    lam: 0.98
+    desired_kl: 0.01
+    max_grad_norm: 1.0
+
+

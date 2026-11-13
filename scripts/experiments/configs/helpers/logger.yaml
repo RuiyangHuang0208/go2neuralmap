@@ -1,0 +1,7 @@
+Logger:
+  handlers:
+    - sink: stdout
+      level: INFO
+      format: "<cyan>{time:YYYY-MM-DD HH:mm:ss}</cyan> | <green>{extra[module_name]:<15}</green>|{level:<8} | {message}"
+    - sink: ${log_dir}/log
+      level: INFO

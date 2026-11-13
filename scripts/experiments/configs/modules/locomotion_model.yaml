@@ -1,0 +1,4 @@
+locomotion_model:
+  name: "locomotion_model"
+  config:
+    model_path: "resources/locomotion_model/long_short_transformer/locomotion.pt"

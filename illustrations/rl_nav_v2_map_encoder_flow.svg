@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">RLNav V2 Map Encoder Flow</title>
+  <desc id="desc">Data flow diagram for RLNavConditionedQueryMapEncoder. Token features are pooled into a crop embedding, concatenated with condition features to build the cross-attention query, then combined with attention output and condition feature.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#263238"/>
+    </marker>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .title { font: 700 30px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .subtitle { font: 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #52606d; }
+      .section { fill: #ffffff; stroke: #c9d4df; stroke-width: 1.5; rx: 10; }
+      .section-title { font: 700 17px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .box { fill: #ffffff; stroke: #7b8b9a; stroke-width: 1.5; rx: 8; }
+      .box-blue { fill: #e8f2ff; stroke: #3b78c8; }
+      .box-green { fill: #e9f7ef; stroke: #31945b; }
+      .box-orange { fill: #fff1dd; stroke: #d9822b; }
+      .box-purple { fill: #f0ebff; stroke: #7c5cc4; }
+      .box-red { fill: #ffe8e8; stroke: #c94f4f; }
+      .box-gray { fill: #eef2f5; stroke: #7b8b9a; }
+      .label { font: 700 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .text { font: 13px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .small { font: 12px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #44515d; }
+      .mono { font: 12.5px "JetBrains Mono", Consolas, monospace; fill: #263238; }
+      .arrow { stroke: #263238; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #607d8b; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 7 5; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1280" height="760"/>
+  <text x="640" y="45" text-anchor="middle" class="title">RLNav V2 MapEncoder 数据流</text>
+  <text x="640" y="72" text-anchor="middle" class="subtitle">RLNavConditionedQueryMapEncoder: condition + crop embedding 构建 attention query</text>
+
+  <rect x="36" y="112" width="250" height="505" class="section"/>
+  <text x="58" y="142" class="section-title">Inputs</text>
+
+  <rect x="68" y="178" width="185" height="82" class="box box-blue"/>
+  <text x="160.5" y="205" text-anchor="middle" class="label">map tokens</text>
+  <text x="160.5" y="229" text-anchor="middle" class="mono">[B, N, token_dim]</text>
+  <text x="160.5" y="247" text-anchor="middle" class="small">N = crop_size * crop_size</text>
+
+  <rect x="68" y="420" width="185" height="82" class="box box-green"/>
+  <text x="160.5" y="447" text-anchor="middle" class="label">condition</text>
+  <text x="160.5" y="471" text-anchor="middle" class="mono">[B, condition_dim]</text>
+  <text x="160.5" y="489" text-anchor="middle" class="small">goal + state + prev cmd</text>
+
+  <rect x="335" y="112" width="260" height="505" class="section"/>
+  <text x="357" y="142" class="section-title">Feature Projection</text>
+
+  <rect x="373" y="178" width="185" height="82" class="box box-blue"/>
+  <text x="465.5" y="205" text-anchor="middle" class="label">token_proj</text>
+  <text x="465.5" y="229" text-anchor="middle" class="mono">MLP(token_dim -> E)</text>
+  <text x="465.5" y="247" text-anchor="middle" class="small">per-token shared MLP</text>
+
+  <rect x="373" y="294" width="185" height="82" class="box box-orange"/>
+  <text x="465.5" y="321" text-anchor="middle" class="label">token_features</text>
+  <text x="465.5" y="345" text-anchor="middle" class="mono">[B, N, E]</text>
+  <text x="465.5" y="363" text-anchor="middle" class="small">used as keys and values</text>
+
+  <rect x="373" y="420" width="185" height="82" class="box box-green"/>
+  <text x="465.5" y="447" text-anchor="middle" class="label">condition_proj</text>
+  <text x="465.5" y="471" text-anchor="middle" class="mono">MLP(condition_dim -> E)</text>
+  <text x="465.5" y="489" text-anchor="middle" class="small">condition_feature</text>
+
+  <rect x="646" y="112" width="275" height="505" class="section"/>
+  <text x="668" y="142" class="section-title">Crop Context + Query</text>
+
+  <rect x="690" y="185" width="190" height="74" class="box box-purple"/>
+  <text x="785" y="211" text-anchor="middle" class="label">mean pooling</text>
+  <text x="785" y="234" text-anchor="middle" class="mono">mean(token_features, dim=1)</text>
+  <text x="785" y="250" text-anchor="middle" class="small">whole crop summary</text>
+
+  <rect x="690" y="289" width="190" height="74" class="box box-purple"/>
+  <text x="785" y="315" text-anchor="middle" class="label">crop_proj</text>
+  <text x="785" y="338" text-anchor="middle" class="mono">MLP(E -> E)</text>
+  <text x="785" y="354" text-anchor="middle" class="small">crop_embedding</text>
+
+  <rect x="690" y="414" width="190" height="74" class="box box-gray"/>
+  <text x="785" y="440" text-anchor="middle" class="label">concat</text>
+  <text x="785" y="463" text-anchor="middle" class="mono">[condition_feature, crop_embedding]</text>
+  <text x="785" y="479" text-anchor="middle" class="small">shape: [B, 2E]</text>
+
+  <rect x="690" y="517" width="190" height="74" class="box box-red"/>
+  <text x="785" y="543" text-anchor="middle" class="label">query_proj</text>
+  <text x="785" y="566" text-anchor="middle" class="mono">MLP(2E -> E)</text>
+  <text x="785" y="582" text-anchor="middle" class="small">query_feature</text>
+
+  <rect x="972" y="112" width="272" height="505" class="section"/>
+  <text x="994" y="142" class="section-title">Attention + Output</text>
+
+  <rect x="1015" y="222" width="185" height="98" class="box box-orange"/>
+  <text x="1107.5" y="249" text-anchor="middle" class="label">cross_attention</text>
+  <text x="1107.5" y="273" text-anchor="middle" class="mono">Q = query_feature</text>
+  <text x="1107.5" y="291" text-anchor="middle" class="mono">K,V = token_features</text>
+  <text x="1107.5" y="309" text-anchor="middle" class="small">MultiheadAttention(batch_first)</text>
+
+  <rect x="1015" y="370" width="185" height="74" class="box box-orange"/>
+  <text x="1107.5" y="396" text-anchor="middle" class="label">attended</text>
+  <text x="1107.5" y="419" text-anchor="middle" class="mono">[B, E]</text>
+  <text x="1107.5" y="435" text-anchor="middle" class="small">attention weights available</text>
+
+  <rect x="990" y="518" width="235" height="82" class="box box-green"/>
+  <text x="1107.5" y="545" text-anchor="middle" class="label">encoder output</text>
+  <text x="1107.5" y="569" text-anchor="middle" class="mono">concat(attended, crop_embedding, condition_feature)</text>
+  <text x="1107.5" y="588" text-anchor="middle" class="mono">[B, 3E]</text>
+
+  <path d="M253 219 L373 219" class="arrow"/>
+  <path d="M465.5 260 L465.5 294" class="arrow"/>
+  <path d="M253 461 L373 461" class="arrow"/>
+
+  <path d="M558 335 C610 335 626 222 690 222" class="arrow"/>
+  <path d="M785 259 L785 289" class="arrow"/>
+  <path d="M785 363 L785 414" class="arrow"/>
+  <path d="M558 461 C604 461 635 451 690 451" class="arrow"/>
+  <path d="M785 488 L785 517" class="arrow"/>
+
+  <path d="M880 554 C927 554 944 271 1015 271" class="arrow"/>
+  <path d="M558 335 C756 335 801 271 1015 271" class="arrow-soft"/>
+  <path d="M1107.5 320 L1107.5 370" class="arrow"/>
+  <path d="M1107.5 444 L1107.5 518" class="arrow"/>
+  <path d="M880 326 C935 326 936 553 990 553" class="arrow-soft"/>
+  <path d="M558 461 C770 461 790 570 990 570" class="arrow-soft"/>
+
+  <rect x="144" y="652" width="992" height="64" class="box box-gray"/>
+  <text x="640" y="678" text-anchor="middle" class="label">ActorCriticRLNavV2 usage</text>
+  <text x="640" y="702" text-anchor="middle" class="text">Actor encoder and critic encoder are independent instances of this MapEncoder; policy_class_name = ActorCriticRLNavV2.</text>
+</svg>

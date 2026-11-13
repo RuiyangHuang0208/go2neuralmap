@@ -1,0 +1,26 @@
+defaults:
+  - modules:
+    - planner
+    - position_controller
+  - augmentation: dataset_augmentation
+  - _self_
+
+log_dir: "logs/data_augmentation"
+
+modules:
+  planner:
+    name: "edge_cost_astar"
+    config:
+      heuristic: "l2_dist"
+      heuristic_min_step_cost: 0.0
+      obstacle_threshold: 70.0
+      waypoint_stride: 5
+
+  position_controller:
+    name: "position_controller_bezier"
+    config:
+      derivative_eval_u: 0.0
+      tangent_scale: 0.1666666667
+      min_tangent_norm: 0.001
+      max_speed: 1.5
+      max_lateral_speed: 0.5

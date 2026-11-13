@@ -1,0 +1,6 @@
+planner:
+  name: "astar"
+  config:
+    heuristic: "chebyshev_dist"
+    obstacle_threshold: 70.
+    waypoint_stride: 3

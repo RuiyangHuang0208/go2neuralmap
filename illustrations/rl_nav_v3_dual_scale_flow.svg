@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">RLNav V3 Dual-Scale Data Flow</title>
+  <desc id="desc">Data flow diagram for ActorCriticRLNavV3. The local crop remains the attention key/value source while a pooled global NeuralMap branch contributes a global embedding used to generate the query.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#263238"/>
+    </marker>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .title { font: 700 31px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .subtitle { font: 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #52606d; }
+      .section { fill: #ffffff; stroke: #c9d4df; stroke-width: 1.5; rx: 10; }
+      .section-title { font: 700 17px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .box { fill: #ffffff; stroke: #7b8b9a; stroke-width: 1.5; rx: 8; }
+      .box-blue { fill: #e8f2ff; stroke: #3b78c8; }
+      .box-green { fill: #e9f7ef; stroke: #31945b; }
+      .box-orange { fill: #fff1dd; stroke: #d9822b; }
+      .box-purple { fill: #f0ebff; stroke: #7c5cc4; }
+      .box-red { fill: #ffe8e8; stroke: #c94f4f; }
+      .box-gray { fill: #eef2f5; stroke: #7b8b9a; }
+      .box-teal { fill: #e5f7f6; stroke: #238b86; }
+      .label { font: 700 15px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17212b; }
+      .text { font: 13px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .small { font: 12px Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #44515d; }
+      .mono { font: 12.5px "JetBrains Mono", Consolas, monospace; fill: #263238; }
+      .arrow { stroke: #263238; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #607d8b; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 7 5; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1400" height="860"/>
+  <text x="700" y="45" text-anchor="middle" class="title">RLNav V3 Dual-Scale 数据流</text>
+  <text x="700" y="72" text-anchor="middle" class="subtitle">local crop 提供 high-res attention K/V，pooled global NeuralMap 只参与 query context</text>
+
+  <rect x="36" y="112" width="270" height="606" class="section"/>
+  <text x="58" y="142" class="section-title">Observation Builder</text>
+
+  <rect x="68" y="176" width="205" height="86" class="box box-blue"/>
+  <text x="170.5" y="203" text-anchor="middle" class="label">local crop tokens</text>
+  <text x="170.5" y="227" text-anchor="middle" class="mono">[B, 8*8, token_dim]</text>
+  <text x="170.5" y="246" text-anchor="middle" class="small">0.25m high-res neighborhood</text>
+
+  <rect x="68" y="315" width="205" height="104" class="box box-teal"/>
+  <text x="170.5" y="342" text-anchor="middle" class="label">global pooled tokens</text>
+  <text x="170.5" y="366" text-anchor="middle" class="mono">full map 48*48 -> 12*12</text>
+  <text x="170.5" y="385" text-anchor="middle" class="mono">[B, 144, token_dim]</text>
+  <text x="170.5" y="404" text-anchor="middle" class="small">confidence-weighted latent pooling</text>
+
+  <rect x="68" y="472" width="205" height="86" class="box box-green"/>
+  <text x="170.5" y="499" text-anchor="middle" class="label">condition</text>
+  <text x="170.5" y="523" text-anchor="middle" class="mono">[B, condition_dim]</text>
+  <text x="170.5" y="542" text-anchor="middle" class="small">goal + state + previous command</text>
+
+  <rect x="68" y="612" width="205" height="74" class="box box-gray"/>
+  <text x="170.5" y="638" text-anchor="middle" class="label">flat observation</text>
+  <text x="170.5" y="661" text-anchor="middle" class="mono">[local, global, condition]</text>
+  <text x="170.5" y="679" text-anchor="middle" class="small">64 + 144 tokens by default</text>
+
+  <path d="M170.5 262 L170.5 612" class="arrow-soft dash"/>
+  <path d="M170.5 419 L170.5 612" class="arrow-soft dash"/>
+  <path d="M170.5 558 L170.5 612" class="arrow-soft dash"/>
+
+  <rect x="352" y="112" width="300" height="606" class="section"/>
+  <text x="374" y="142" class="section-title">Feature Projection</text>
+
+  <rect x="407" y="176" width="190" height="86" class="box box-blue"/>
+  <text x="502" y="203" text-anchor="middle" class="label">local_token_proj</text>
+  <text x="502" y="227" text-anchor="middle" class="mono">MLP(token_dim -> E)</text>
+  <text x="502" y="246" text-anchor="middle" class="small">shared over 64 local tokens</text>
+
+  <rect x="407" y="299" width="190" height="74" class="box box-orange"/>
+  <text x="502" y="325" text-anchor="middle" class="label">local_features</text>
+  <text x="502" y="348" text-anchor="middle" class="mono">[B, 64, E]</text>
+  <text x="502" y="364" text-anchor="middle" class="small">attention keys and values</text>
+
+  <rect x="407" y="418" width="190" height="86" class="box box-teal"/>
+  <text x="502" y="445" text-anchor="middle" class="label">global_token_proj</text>
+  <text x="502" y="469" text-anchor="middle" class="mono">MLP(token_dim -> E)</text>
+  <text x="502" y="488" text-anchor="middle" class="small">shared over 144 global tokens</text>
+
+  <rect x="407" y="548" width="190" height="74" class="box box-green"/>
+  <text x="502" y="574" text-anchor="middle" class="label">condition_proj</text>
+  <text x="502" y="597" text-anchor="middle" class="mono">MLP(condition_dim -> E)</text>
+  <text x="502" y="613" text-anchor="middle" class="small">condition_feature</text>
+
+  <path d="M273 219 L407 219" class="arrow"/>
+  <path d="M502 262 L502 299" class="arrow"/>
+  <path d="M273 367 C326 367 344 461 407 461" class="arrow"/>
+  <path d="M273 515 C326 515 344 585 407 585" class="arrow"/>
+
+  <rect x="700" y="112" width="305" height="606" class="section"/>
+  <text x="722" y="142" class="section-title">Local + Global Query Context</text>
+
+  <rect x="755" y="174" width="195" height="74" class="box box-purple"/>
+  <text x="852.5" y="200" text-anchor="middle" class="label">local mean pooling</text>
+  <text x="852.5" y="223" text-anchor="middle" class="mono">mean(local_features)</text>
+  <text x="852.5" y="239" text-anchor="middle" class="small">local crop summary</text>
+
+  <rect x="755" y="278" width="195" height="74" class="box box-purple"/>
+  <text x="852.5" y="304" text-anchor="middle" class="label">local_crop_proj</text>
+  <text x="852.5" y="327" text-anchor="middle" class="mono">MLP(E -> E)</text>
+  <text x="852.5" y="343" text-anchor="middle" class="small">local_embedding</text>
+
+  <rect x="755" y="400" width="195" height="74" class="box box-teal"/>
+  <text x="852.5" y="426" text-anchor="middle" class="label">global mean pooling</text>
+  <text x="852.5" y="449" text-anchor="middle" class="mono">mean(global_features)</text>
+  <text x="852.5" y="465" text-anchor="middle" class="small">global map summary</text>
+
+  <rect x="755" y="504" width="195" height="74" class="box box-teal"/>
+  <text x="852.5" y="530" text-anchor="middle" class="label">global_proj</text>
+  <text x="852.5" y="553" text-anchor="middle" class="mono">MLP(E -> E)</text>
+  <text x="852.5" y="569" text-anchor="middle" class="small">global_embedding</text>
+
+  <rect x="735" y="622" width="235" height="74" class="box box-gray"/>
+  <text x="852.5" y="648" text-anchor="middle" class="label">concat query inputs</text>
+  <text x="852.5" y="671" text-anchor="middle" class="mono">[condition, local, global]</text>
+  <text x="852.5" y="687" text-anchor="middle" class="small">shape: [B, 3E]</text>
+
+  <path d="M597 336 C655 336 681 211 755 211" class="arrow"/>
+  <path d="M852.5 248 L852.5 278" class="arrow"/>
+  <path d="M597 461 C650 461 681 437 755 437" class="arrow"/>
+  <path d="M852.5 474 L852.5 504" class="arrow"/>
+  <path d="M597 585 C657 585 673 659 735 659" class="arrow"/>
+  <path d="M852.5 352 L852.5 622" class="arrow-soft"/>
+  <path d="M852.5 578 L852.5 622" class="arrow-soft"/>
+
+  <rect x="1054" y="112" width="310" height="606" class="section"/>
+  <text x="1076" y="142" class="section-title">Attention + Actor/Critic Output</text>
+
+  <rect x="1116" y="194" width="185" height="74" class="box box-red"/>
+  <text x="1208.5" y="220" text-anchor="middle" class="label">query_proj</text>
+  <text x="1208.5" y="243" text-anchor="middle" class="mono">MLP(3E -> E)</text>
+  <text x="1208.5" y="259" text-anchor="middle" class="small">query_feature</text>
+
+  <rect x="1102" y="330" width="213" height="106" class="box box-orange"/>
+  <text x="1208.5" y="357" text-anchor="middle" class="label">cross_attention</text>
+  <text x="1208.5" y="381" text-anchor="middle" class="mono">Q = query_feature</text>
+  <text x="1208.5" y="400" text-anchor="middle" class="mono">K,V = local_features</text>
+  <text x="1208.5" y="419" text-anchor="middle" class="small">global tokens do not enter K/V</text>
+
+  <rect x="1116" y="487" width="185" height="74" class="box box-orange"/>
+  <text x="1208.5" y="513" text-anchor="middle" class="label">attended local</text>
+  <text x="1208.5" y="536" text-anchor="middle" class="mono">[B, E]</text>
+  <text x="1208.5" y="552" text-anchor="middle" class="small">attention grid: 8x8</text>
+
+  <rect x="1084" y="615" width="249" height="82" class="box box-green"/>
+  <text x="1208.5" y="642" text-anchor="middle" class="label">encoder output</text>
+  <text x="1208.5" y="666" text-anchor="middle" class="mono">[attended, local, global, condition]</text>
+  <text x="1208.5" y="685" text-anchor="middle" class="mono">[B, 4E] -> actor / critic MLP</text>
+
+  <path d="M970 659 C1034 659 1048 231 1116 231" class="arrow"/>
+  <path d="M597 336 C870 336 915 383 1102 383" class="arrow-soft"/>
+  <path d="M1208.5 268 L1208.5 330" class="arrow"/>
+  <path d="M1208.5 436 L1208.5 487" class="arrow"/>
+  <path d="M1208.5 561 L1208.5 615" class="arrow"/>
+  <path d="M950 315 C1031 315 1034 646 1084 646" class="arrow-soft"/>
+  <path d="M950 541 C1015 541 1018 666 1084 666" class="arrow-soft"/>
+  <path d="M597 585 C842 585 889 684 1084 684" class="arrow-soft"/>
+
+  <rect x="192" y="760" width="1016" height="62" class="box box-gray"/>
+  <text x="700" y="786" text-anchor="middle" class="label">ActorCriticRLNavV3 usage</text>
+  <text x="700" y="808" text-anchor="middle" class="text">Actor and critic use independent dual-scale encoders; policy_class_name = ActorCriticRLNavV3; default V3 observation tokens = 64 local + 144 global.</text>
+</svg>

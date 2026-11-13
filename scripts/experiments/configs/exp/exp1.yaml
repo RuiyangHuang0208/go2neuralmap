@@ -1,0 +1,6 @@
+# @package _global_
+
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_slope_stairs.yaml

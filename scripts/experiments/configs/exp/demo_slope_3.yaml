@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+  - /exp/go2nm
+  - _self_
+
+env:
+  terrain:
+    terrains_yaml: resources/terrains/configs/demo_slope_stairs_30_15.yaml
+
+helpers:
+  state_recorder:
+    config:
+      interactive_mode: False
+
+modules:
+  neural_map:
+    config:
+      least_count: 0.25

@@ -1,0 +1,47 @@
+defaults:
+  - hydra
+  - diffusion_algorithm: baseline
+  - _self_
+
+training:
+  seed: 0
+  device: "cuda"
+  epochs: 10
+  batch_size: 32
+  num_workers: 0
+  train_split: 0.9
+  log_interval: 20
+  eval_interval: 1
+  checkpoint_interval: 500
+  output_dir: "logs/diffusion_policy/${algorithm.name}_${run_timestamp}"
+  dataset:
+    dataset_dir: "logs/data_augmentation/dataset"
+    max_samples: null
+    crop_size: 8
+    goal_scale: 12.0
+    velocity_scale: 1.5
+    uncertainty_log_scale: 12.0
+    uncertainty_max: 100000.0
+    shard_cache_size: 8
+    current_heading_source: "initial_heading"
+    terminal_padding:
+      enabled: false
+      near_threshold: 1.0
+      goal_tolerance: 0.35
+      only_if_reached_goal: true
+  optimizer:
+    lr: 1.0e-4
+    weight_decay: 1.0e-6
+  wandb:
+    enabled: true
+    project: "go2_neural_map"
+    entity: null
+    name: null
+    mode: null
+  resume:
+    enabled: false
+    checkpoint_path: null
+    strict: true
+    load_optimizer: true
+
+run_timestamp: ???

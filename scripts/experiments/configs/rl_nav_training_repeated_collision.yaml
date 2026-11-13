@@ -1,0 +1,21 @@
+# @package _global_
+#
+defaults:
+  - rl_nav_training_cellwise_bayesian
+  - _self_
+
+training:
+  output_dir: "logs/rl_nav_policy/${run_timestamp}_repeated_collision"
+
+rl_nav:
+  reward:
+    repeated_collision_penalty:
+      enabled: true
+      penalty_scale: 1.0
+      radius_cells: 1
+      max_count: 3.0
+      decay: 1.0
+
+ppo:
+  runner:
+    wandb_run_name: ${run_timestamp}_repeated_collision
